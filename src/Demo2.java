@@ -69,6 +69,7 @@ class Config //extends JPanel
 		} 
 		catch (Exception e) {
 			System.out.println("errore impossibile trovare "+topo_dir+"/"+topo);
+			System.exit(1);
 		} 
 		
 		// assigning source and destination
