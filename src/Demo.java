@@ -54,18 +54,20 @@ class Config //extends JPanel
 		String topo = "topo_750x750_n"+N_NODES+"_r"+(int)RANGE+"/topo_"+iteration+".topo";
 		Topology t = new Topology(N_NODES, RANGE);
 		try {
-			file = new BufferedWriter(new FileWriter("draw_geo/coordinates.txt"));
-			stateFile = new BufferedWriter(new FileWriter("draw_geo/states.txt"));
+			//file = new BufferedWriter(new FileWriter("draw_geo/coordinates.txt"));
+			//stateFile = new BufferedWriter(new FileWriter("draw_geo/states.txt"));
 			t.load(topo_dir+"/"+topo);
 			
 			//topologyRead = new BufferedReader(new FileReader(topo_dir+"/"+topo));
 			
+			/*
 			stateFile.write(topo);
 			stateFile.newLine();
 			stateFile.write(""+RANGE);
 			stateFile.newLine();
 			stateFile.write(""+N_NODES);
 			stateFile.newLine();
+			*/
 		} 
 		catch (Exception e) {
 			System.out.println("errore impossibile trovare "+topo_dir+"/"+topo);
@@ -76,14 +78,15 @@ class Config //extends JPanel
 		int s_id = 0;
 		int d_id = 1;
 
-		ProvaRouting routing = new ProvaRouting(t, s_id, d_id, FAILHOPS);
+		GreedyRouting routing = new GreedyRouting(t, s_id, d_id, FAILHOPS);
 		routing.run();
 			
 		// TERMINATO
 		
 		if(routing.success()) {
-			totHops[run_i] = routing.getHops();
+			totHops[run_i] = routing.hops;
 			totSucc += routing.getSuccess();
+			System.out.println("hops = " + totHops[run_i]);
 		}
 		
 		// TODO FARE SISTEMA DI TRACING
@@ -96,7 +99,7 @@ class Config //extends JPanel
 
 	
 	
-public class Demo2
+public class Demo
 {	
 
 	public static void main(String args[]) throws Exception
@@ -116,6 +119,9 @@ public class Demo2
 		int n = 100;
 		
 		String topodir = "topologies";
+		
+	
+		//System.out.println("p1h = " + p1.h.a + ", p2h = " + p2.h.a);
 		
 	
 		if(one_run) {

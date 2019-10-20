@@ -18,6 +18,11 @@ public class Topology {
 		RANGE = r;
 	}
 	
+	public double getRange()
+	{
+		return RANGE;
+	}
+	
 	public Node get(int id)
 	{
 		return nodes[id];
