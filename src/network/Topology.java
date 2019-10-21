@@ -28,6 +28,8 @@ public class Topology {
 		return nodes[id];
 	}
 	
+	
+	
 	public void load(String dir) throws NumberFormatException, IOException
 	{
 		topologyRead = new BufferedReader(new FileReader(dir));

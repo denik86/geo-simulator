@@ -78,7 +78,7 @@ class Config //extends JPanel
 		int s_id = 0;
 		int d_id = 1;
 
-		GreedyRouting routing = new GreedyRouting(t, s_id, d_id, FAILHOPS);
+		GCR routing = new GCR(t, s_id, d_id, FAILHOPS);
 		routing.run();
 			
 		// TERMINATO
@@ -114,7 +114,7 @@ public class Demo
 		int []nodes = {50, 100, 150, 200};
 		
 		boolean one_run = true;
-		int run = 20;
+		int run = 23;
 		int t = 30;
 		int n = 100;
 		

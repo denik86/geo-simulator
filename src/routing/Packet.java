@@ -24,8 +24,10 @@ public class Packet
 	public int nextId; // next node id
 	
 	private int hops;
+	public PacketType type;
 	
 	public static boolean BROADCAST;
+	
 	
 	private Map<String, Object> fields;
 	
@@ -62,6 +64,7 @@ public class Packet
 		this.nextId = p.nextId;
 		this.fromId = p.fromId;
 		this.hops = p.hops;
+		this.type = p.type;
 		
 		if (p.fields != null) {
 			Set<String> keys = p.fields.keySet();
@@ -164,8 +167,10 @@ public class Packet
 	
 	public String toString()
 	{
-		String s;
-		s = "PACKET (S="+srcId+", D="+dstId+" | "+fromId+"->"+nextId+" | H="+hops+")";
+		String s = "";
+		if(BROADCAST)
+			s = "(B) ";
+		s += "PACKET (S="+srcId+", D="+dstId+" | "+fromId+"->"+nextId+" | H="+hops+")";
 		return s;
 	}
 

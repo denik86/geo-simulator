@@ -1,12 +1,16 @@
 package network;
 import java.util.ArrayList;
+import java.util.Map;
+
+import routing.Packet;
+import routing.RoutingTable;
 
 
 class Neighbor
 {
 	int id; // id of neighbor
 	double x, y, z; // nodes's coordinates
-	
+		
 	Neighbor(int id_node, double xx, double yy, double zz)
 	{
 		id = id_node;
@@ -24,6 +28,11 @@ public class Node
 	public double z;
 	public ArrayList<Neighbor> neighbors; // list of neighbors
 	public int n; // number of neighbors
+	
+	//TODO Cancellare queste proprieta dopo aver trovato il modo
+	public RoutingTable rt;
+	public boolean RREQ_received;
+	public Packet data;
 
 	public Node(int id_node, double xx, double yy, double zz)
 	{
@@ -33,6 +42,9 @@ public class Node
 		x = xx;
 		y = yy;
 		z = zz;
+		rt = new RoutingTable();
+		
+		RREQ_received = false;
 	}
 	
 	public int getNeighborId(int i)

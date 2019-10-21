@@ -58,7 +58,7 @@ public class GreedyRouting extends Routing {
 		
 		// Metodi da implementare sempre
 		p.nextId = min_id;
-		p.BROADCAST = true;
+		//p.BROADCAST = true;
 		send(p);
 	}
 	

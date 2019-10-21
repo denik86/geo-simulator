@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import network.Node;
 import network.Topology;
 import routing.Event.EventType;
+import routing.Packet.PacketType;
 import trace.Trace;
 
 public class Routing {
@@ -57,6 +58,7 @@ public class Routing {
 		
 		// Create the packet from source node
 		Packet p = new Packet(SOURCE_ID, DESTINATION_ID, -1);
+		p.type = PacketType.DATA;
 		p.nextId = SOURCE_ID;
 
 		init();
@@ -66,6 +68,11 @@ public class Routing {
 		
 		while(state == State.NOTFINISHED)
 		{	
+			if(eventId >= eventList.size())
+			{
+				System.out.println("!!! EventListener Empty !!!");
+				System.exit(1);
+			}
 			//System.out.println("event list size = " + eventList.size());
 			e = eventList.get(eventId);
 			eventId++;
@@ -139,10 +146,13 @@ public class Routing {
 		p.setFromId(e.nodeId);
 			
 		if(p.BROADCAST) {
+			System.out.println("Avvio un broadcast");
 			p.incrHops();
 			for(int i = 0; i < currentNode.n; i++)
 			{
+				//System.out.println("Invio a nodo " + i);
 				Packet broadPkt = new Packet(p);
+				broadPkt.nextId = currentNode.getNeighborId(i);
 				Event recvEvent = new Event(EventType.PACKETRECEIVE, broadPkt.nextId, broadPkt, -1, -1);
 				addEvent(recvEvent);
 			}
