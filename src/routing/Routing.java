@@ -16,7 +16,7 @@ public class Routing {
 	}
 	static final int NOTFOUND = -1; 
 	static final int ROUTINGERROR = -2;
-	static final int BROADCAST = -3;
+	//static final int BROADCAST = -3;
 	static String errormessage = "";
 	Topology topo; // topology
 	final int SOURCE_ID; // source id
@@ -83,10 +83,17 @@ public class Routing {
 			// -------- PACKET IS BEING RECEIVED --------------------------------------------
 			if(e.type == EventType.PACKETRECEIVE)
 			{
+				/*
+				System.out.println("*****Lista eventi da eseguire *****");
+				for(int i = eventId; i < eventList.size(); i++)
+					System.out.println("Evento "+i+" - "+eventList.get(i).pkt);
+				System.out.println("***********");
+				*/
+				
 				p = e.pkt;
 				int nextId = p.nextId;
-				if(!p.BROADCAST && currentNode.id != nextId) {
-					System.out.println("ROUTING ERROR: current node is different than the node that received the packet.");
+				if(!p.broad && currentNode.id != nextId) {
+					System.out.println("SCHEDULER ERROR: current node is different than the node that received the packet.");
 					System.exit(1);
 				}
 				
@@ -101,7 +108,7 @@ public class Routing {
 				receive(p, topo.get(p.nextId));
 				
 				// DESTINATION REACHED - STOP
-				if(nextId == DESTINATION_ID) {
+				if(p.type == PacketType.DATA && nextId == DESTINATION_ID) {
 					state = State.SUCCESS;
 					System.out.println("=== Packet delivered. Simulation STOP ===");
 					hops = p.getHops();
@@ -145,16 +152,18 @@ public class Routing {
 		// Set of fromId (the current node of this event)
 		p.setFromId(e.nodeId);
 			
-		if(p.BROADCAST) {
-			System.out.println("Avvio un broadcast");
+		if(p.broad) {
+			//System.out.println("Avvio un broadcast");
 			p.incrHops();
 			for(int i = 0; i < currentNode.n; i++)
 			{
-				System.out.println("Invio a nodo " + currentNode.getNeighborId(i));
+				
 				Packet broadPkt = new Packet(p);
 				broadPkt.nextId = currentNode.getNeighborId(i);
 				Event recvEvent = new Event(EventType.PACKETRECEIVE, broadPkt.nextId, broadPkt, -1, -1);
 				addEvent(recvEvent);
+				//System.out.println("Inviato a nodo " + currentNode.getNeighborId(i) + "broad = "+broadPkt.broad);
+				
 			}
 			return;
 		}
@@ -180,6 +189,7 @@ public class Routing {
 			return;
 		}
 		
+		//System.out.println("Packet sent correctly");
 		p.incrHops();
 		Event recvEvent = new Event(EventType.PACKETRECEIVE, p.nextId, p, -1, -1);
 		addEvent(recvEvent);

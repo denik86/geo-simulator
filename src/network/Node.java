@@ -33,6 +33,7 @@ public class Node
 	public RoutingTable rt;
 	public boolean RREQ_received;
 	public Packet data;
+	public boolean dataSent;
 
 	public Node(int id_node, double xx, double yy, double zz)
 	{
@@ -45,6 +46,7 @@ public class Node
 		rt = new RoutingTable();
 		
 		RREQ_received = false;
+		dataSent = false;
 	}
 	
 	public int getNeighborId(int i)

@@ -12,13 +12,10 @@ public class GCR extends Routing {
 	}
 		
 	public void receive(Packet p, Node c)
-	{
-
-		//System.out.println("Node "+ c.id + " receives "+p.toString());
-		
+	{		
 		if(p.type == PacketType.DATA)
 		{
-			System.out.println("-- Arrivato un DATA packet");
+			System.out.println("-- Arrivato DATA "+ p);
 			Node d = topo.get(DESTINATION_ID);
 			if(c.id == DESTINATION_ID)
 			{
@@ -27,9 +24,8 @@ public class GCR extends Routing {
 			}
 			
 			// We are in the source node, so initialize the data packet 
-			if(c.id == SOURCE_ID)
-			{
-				
+			if(c.id == SOURCE_ID && p.getHops() == 0)
+			{				
 				p.addField("greedyMode", true);
 				p.addField("srcX", c.x);
 				p.addField("srcY", c.y);
@@ -42,28 +38,37 @@ public class GCR extends Routing {
 				p.addField("closestDist", c.distance(d));
 			}
 			
+			int nextNodeId = NOTFOUND;
 			double minDist = c.distance(d);
-			int min_id = NOTFOUND;
 			
-			// Greedy process
-			for(int i = 0; i < c.n; i++)
+			if((boolean)p.getField("greedyMode") == false)
 			{
-				int nId = c.getNeighborId(i);
-				if(nId == d.id) {// case destination found
-					min_id = nId;
-					break;
-				}
-				double currDist = c.distanceNeighbor(i, d);
-				if(currDist < minDist)
+				nextNodeId = currentNode.rt.getNext(p.getDstId());
+			}
+			
+			if(nextNodeId == NOTFOUND || (boolean)p.getField("greedyMode") == true)
+			{
+				// Greedy process
+				
+				for(int i = 0; i < c.n; i++)
 				{
-					//System.out.println("minode found");
-					minDist = currDist;
-					min_id = nId;
-					//hops++;
+					int nId = c.getNeighborId(i);
+					if(nId == d.id) {// case destination found
+						nextNodeId = nId;
+						break;
+					}
+					double currDist = c.distanceNeighbor(i, d);
+					if(currDist < minDist)
+					{
+						//System.out.println("minode found");
+						minDist = currDist;
+						nextNodeId = nId;
+						//hops++;
+					}
 				}
 			}
 			
-			if(min_id == NOTFOUND)
+			if(nextNodeId == NOTFOUND)
 			{
 				System.out.println("Closer node not found, send a RREQ");
 				c.data = p;
@@ -76,15 +81,15 @@ public class GCR extends Routing {
 				broad.addField("minDist", minDist);
 				broad.addField("ttl", 15);
 				broad.addField("CGRType", "RREQ");
-				broad.BROADCAST = true;
-				broad.nextId = BROADCAST;
+				broad.broad = true;
+				//broad.nextId = BROADCAST;
 				broad.type = PacketType.ROUTING;
 				send(broad);
 				
 			} else
 			{
 			
-				p.nextId = min_id;
+				p.nextId = nextNodeId;
 				//p.BROADCAST = true;
 				send(p);
 			}
@@ -96,7 +101,7 @@ public class GCR extends Routing {
 			if(p.getField("CGRType") == "RREQ" && !c.RREQ_received)
 			{
 				c.RREQ_received = true;
-				System.out.println("["+currentNode.id+"]-- Arrivato un RREQ packet " +p.BROADCAST);
+				System.out.println("["+currentNode.id+"]-- Arrivato un RREQ "+p);
 
 				
 				c.rt.addEntry(p.getSrcId(), p.getFromId(), p.getHops());
@@ -122,15 +127,35 @@ public class GCR extends Routing {
 				
 				if(p.getHops() < (int)p.getField("ttl"))
 				{
-					System.out.println("["+currentNode.id+"]-- -- invio ancora RREQ - "+p.BROADCAST);
+					System.out.println("["+currentNode.id+"]-- -- invio ancora RREQ - "+p.broad);
 					send(p);
 				}
 				
 			} else if (p.getField("CGRType") == "RREP")
 			{
-				System.out.println("-- Arrivato un RREP packet");
+				//System.out.print("["+currentNode.id+"] -- Arrivato un RREP ");
+				int dest_id = (int)p.getField("dstId");
+				currentNode.rt.addEntry(dest_id, p.getFromId(), p.getHops());
+				if(currentNode.id == p.getDstId())
+				{
+					if(!currentNode.dataSent)
+					{
+						System.out.println("Arrivato RREP da "+p.getSrcId()+" dove VOLEVO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+						currentNode.dataSent = true;
+						currentNode.data.nextId = currentNode.rt.getNext(dest_id);
+						currentNode.data.updateField("greedyMode", false);
+						send(currentNode.data);
+					}
+				}
+				else {
+					System.out.println(" ... forwardo RREP");
+					p.nextId = currentNode.rt.getNext(p.getDstId());
+					send(p);
+				}
 				
 			} else {
+				
+				//System.out.println("Getto il packet " +p);
 				
 			}
 			

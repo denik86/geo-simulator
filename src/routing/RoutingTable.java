@@ -49,8 +49,7 @@ public class RoutingTable {
 	}
 	
 	public int getNext(int d)
-	{
-		
+	{		
 		for(int i = 0; i < rt.size(); i++)
 		{
 			TableEntry e = rt.get(i);

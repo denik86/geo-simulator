@@ -26,7 +26,7 @@ public class Packet
 	private int hops;
 	public PacketType type;
 	
-	public static boolean BROADCAST;
+	public boolean broad;
 	
 	
 	private Map<String, Object> fields;
@@ -49,7 +49,7 @@ public class Packet
 		dstId = destinationId;
 		fromId = fromNodeId;
 		hops = 0;
-		BROADCAST = false;
+		broad = false;
 		fields = null;
 	}
 	
@@ -65,6 +65,7 @@ public class Packet
 		this.fromId = p.fromId;
 		this.hops = p.hops;
 		this.type = p.type;
+		this.broad = p.broad;
 		
 		if (p.fields != null) {
 			Set<String> keys = p.fields.keySet();
@@ -168,7 +169,7 @@ public class Packet
 	public String toString()
 	{
 		String s = "";
-		if(BROADCAST)
+		if(broad)
 			s = "(B) ";
 		s += "PACKET (S="+srcId+", D="+dstId+" | "+fromId+"->"+nextId+" | H="+hops+")";
 		return s;
