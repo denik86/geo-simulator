@@ -150,7 +150,7 @@ public class Routing {
 			p.incrHops();
 			for(int i = 0; i < currentNode.n; i++)
 			{
-				//System.out.println("Invio a nodo " + i);
+				System.out.println("Invio a nodo " + currentNode.getNeighborId(i));
 				Packet broadPkt = new Packet(p);
 				broadPkt.nextId = currentNode.getNeighborId(i);
 				Event recvEvent = new Event(EventType.PACKETRECEIVE, broadPkt.nextId, broadPkt, -1, -1);

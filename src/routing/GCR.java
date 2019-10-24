@@ -22,10 +22,7 @@ public class GCR extends Routing {
 	
 	public void receive(Packet p, Node c)
 	{
-		// TODO SPIEGARE QUI CHE BISOGNA FARE UN 
-		// TEST PER CAPIRE SE SIAMO IL SOURCE NODE O NO
-		// SE LO SIAMO, ALLORA BISOGNA INIZIALIZZARE I CAMPI
-		// DEL PACCHETTO E LE PROPRIETÀ DEL NODO.
+
 		//System.out.println("Node "+ c.id + " receives "+p.toString());
 		
 		if(p.type == PacketType.DATA)
@@ -38,6 +35,7 @@ public class GCR extends Routing {
 				return;
 			}
 			
+			// We are in the source node, so initialize the data packet 
 			if(c.id == SOURCE_ID)
 			{
 				
@@ -77,6 +75,7 @@ public class GCR extends Routing {
 			if(min_id == NOTFOUND)
 			{
 				System.out.println("Closer node not found, send a RREQ");
+				c.data = p;
 				// create a broadcast RREQ Packet
 				Packet broad = new Packet(c.id, -1);
 				broad.addField("dstId", d.id);
@@ -87,6 +86,7 @@ public class GCR extends Routing {
 				broad.addField("ttl", 15);
 				broad.addField("CGRType", "RREQ");
 				broad.BROADCAST = true;
+				broad.nextId = BROADCAST;
 				broad.type = PacketType.ROUTING;
 				send(broad);
 				
@@ -105,16 +105,15 @@ public class GCR extends Routing {
 			if(p.getField("CGRType") == "RREQ" && !c.RREQ_received)
 			{
 				c.RREQ_received = true;
-				System.out.println("-- Arrivato un RREQ packet");
+				System.out.println("["+currentNode.id+"]-- Arrivato un RREQ packet " +p.BROADCAST);
 
 				
 				c.rt.addEntry(p.getSrcId(), p.getFromId(), p.getHops());
 				
-
-				
 				if(c.id == (int)p.getField("dstId")) 
 				{// i am the destination
-					System.out.println("------------------------------produco e invio un RREP");
+					System.out.println("-----SONO DESTINAZIONE-------------produco e invio un RREP");
+					sendRREP(p.getSrcId(), (int)p.getField("dstId"));
 						
 					//........
 					return;
@@ -122,16 +121,17 @@ public class GCR extends Routing {
 					
 				double currDist = c.distance((double)p.getField("dstX"), (double)p.getField("dstY"), (double)p.getField("dstY"));
 				
-				System.out.println(currDist + " e " +  (double)p.getField("minDist"));
+				//System.out.println(currDist + " e " +  (double)p.getField("minDist"));
 				if(currDist < (double)p.getField("minDist"))
 				{
-					System.out.println("------------------------------produco e invio un RREP");
+					System.out.println("---------produco e invio un RREP");
+					sendRREP(p.getSrcId(), (int)p.getField("dstId"));
 					return;
 				}
 				
 				if(p.getHops() < (int)p.getField("ttl"))
 				{
-					System.out.println("-- -- invio ancora RREQ");
+					System.out.println("["+currentNode.id+"]-- -- invio ancora RREQ - "+p.BROADCAST);
 					send(p);
 				}
 				
@@ -154,6 +154,20 @@ public class GCR extends Routing {
 	} // END - receive()
 		
 
+	void sendRREP(int to_id, int data_dest_id)
+	{
+		Packet rrep = new Packet(currentNode.id, to_id);
+		rrep.type = PacketType.ROUTING;
+		rrep.addField("dstId", data_dest_id);
+		rrep.addField("CGRType", "RREP");
+		rrep.nextId = currentNode.rt.getNext(to_id);
+		if(rrep.nextId == -1)
+		{
+			System.out.println("Error RREP cannot be sent");
+			return;
+		}
+		send(rrep);
+	}
 
 	
 

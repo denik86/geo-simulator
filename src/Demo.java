@@ -164,7 +164,7 @@ public class Demo
 						conf.run(i);
 					}
 					
-					try {
+					try {b
 						stats.write(""+nodes[n_id]+"\t"+
 								conf.totSucc+"\t"+
 								mean(conf.totHops)+"\t"+devst(var(conf.totHops))+"\t"+
