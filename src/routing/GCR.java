@@ -10,16 +10,7 @@ public class GCR extends Routing {
 	public GCR(Topology t, int s, int d, int maxH) {
 		super(t, s, d, maxH);
 	}
-	
-	/*
-	 * TODO BISOGNA CREARE UN MODO PER POTER INCLUDERE DELLE
-	 * STRUTTURE DATI NEI NODE. SE AD ESEMPIO VOGLIAMO UNA ROUTING
-	 * TABLE, OGNI NODO DEVE AVERE UNA ROUTING TABLE, QUINDI
-	 * CI SARA UN CICLO FOR CHE AGGIUNGE UNA RT IN OGNI NODO
-	 * DELLA TOPOLOGIA. (non-Javadoc)
-	 * @see routing.Routing#receive(routing.Packet, network.Node)
-	 */
-	
+		
 	public void receive(Packet p, Node c)
 	{
 
