@@ -2,6 +2,7 @@
 
 import java.util.*;
 
+import network.Node;
 import network.Topology;
 import routing.*;
 
@@ -15,16 +16,20 @@ class Config //extends JPanel
 	double MAX_Y;
 	double MAX_Z;
 	double RANGE;
-	static int MAXTABU = 1000; // max number of nodes in tabu list
+	final int MAXTABU = 1000; // max number of nodes in tabu list
 	int tabuSize;
 	int run_i;
+	public int ttl;
 	String topo_dir;
-	static int FAILHOPS = 100;
+	final int FAILHOPS = 100;
 	
 	// STATS VARIABLES
 	int totSucc;
 	int totGreedyFails;
 	int [] totHops;
+	int [] totDataSent;
+	int [] totRoutingSent;
+	int [] nodesInvolved;
 	int [] localMinima;
 
 	public Config(int _n_nodes, double _max_x, double _max_y, double _max_z, double _range, int startTabuSize, boolean dyn, int runs, String topologies_dir)
@@ -35,6 +40,9 @@ class Config //extends JPanel
 		MAX_Z = _max_z;
 		RANGE = _range;
 		totHops = new int[runs];
+		totDataSent = new int[runs];
+		totRoutingSent = new int[runs];
+		nodesInvolved = new int[runs];
 		tabuSize = startTabuSize;
 		run_i = 0;
 		localMinima = new int[runs];
@@ -78,15 +86,18 @@ class Config //extends JPanel
 		int s_id = 0;
 		int d_id = 1;
 
-		GCR routing = new GCR(t, s_id, d_id, FAILHOPS);
+		GCR routing = new GCR(t, s_id, d_id, FAILHOPS, ttl);
 		routing.run();
 			
 		// TERMINATO
 		
 		if(routing.success()) {
 			totHops[run_i] = routing.hops;
+			totDataSent[run_i] = routing.dataPacketSent;
+			totRoutingSent[run_i] = routing.routingPacketSent;
+			nodesInvolved[run_i] = routing.nodesInvolved;
 			totSucc += routing.getSuccess();
-			System.out.println("hops = " + totHops[run_i]);
+			System.out.println("hops = " + totHops[run_i] + ", "+nodesInvolved[run_i]);
 		}
 		
 		// TODO FARE SISTEMA DI TRACING
@@ -114,7 +125,7 @@ public class Demo
 		int []nodes = {50, 100, 150, 200};
 		
 		boolean one_run = true;
-		int run = 23;
+		int run = 1;
 		int t = 30;
 		int n = 100;
 		
@@ -126,6 +137,7 @@ public class Demo
 	
 		if(one_run) {
 			Config conf = new Config(n, dim, dim, 0, r, t, true, runs, topodir);
+			conf.ttl = 10;
 			conf.run(run);
 			System.exit(0);
 		}

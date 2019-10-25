@@ -6,13 +6,22 @@ import routing.Packet.PacketType;
 
 
 public class GCR extends Routing {
+	
+	public int nodesInvolved;
+	public int ttlR;
 
-	public GCR(Topology t, int s, int d, int maxH) {
+	public GCR(Topology t, int s, int d, int maxH, int ttlR) {
 		super(t, s, d, maxH);
+		nodesInvolved = 0;
+		this.ttlR = ttlR;
 	}
 		
 	public void receive(Packet p, Node c)
-	{		
+	{
+		if(!c.involved) {
+			nodesInvolved++;
+			c.involved = true;
+		}
 		if(p.type == PacketType.DATA)
 		{
 			System.out.println("-- Arrivato DATA "+ p);
@@ -79,7 +88,7 @@ public class GCR extends Routing {
 				broad.addField("dstY", d.y);
 				broad.addField("dstZ", d.z);
 				broad.addField("minDist", minDist);
-				broad.addField("ttl", 15);
+				broad.addField("ttl", ttlR);
 				broad.addField("CGRType", "RREQ");
 				broad.broad = true;
 				//broad.nextId = BROADCAST;
@@ -101,14 +110,14 @@ public class GCR extends Routing {
 			if(p.getField("CGRType") == "RREQ" && !c.RREQ_received)
 			{
 				c.RREQ_received = true;
-				System.out.println("["+currentNode.id+"]-- Arrivato un RREQ "+p);
+				//System.out.println("["+currentNode.id+"]-- Arrivato un RREQ "+p);
 
 				
 				c.rt.addEntry(p.getSrcId(), p.getFromId(), p.getHops());
 				
 				if(c.id == (int)p.getField("dstId")) 
 				{// i am the destination
-					System.out.println("-----SONO DESTINAZIONE-------------produco e invio un RREP");
+					//System.out.println("-----SONO DESTINAZIONE-------------produco e invio un RREP");
 					sendRREP(p.getSrcId(), (int)p.getField("dstId"));
 						
 					//........
@@ -120,14 +129,14 @@ public class GCR extends Routing {
 				//System.out.println(currDist + " e " +  (double)p.getField("minDist"));
 				if(currDist < (double)p.getField("minDist"))
 				{
-					System.out.println("---------produco e invio un RREP");
+					//System.out.println("---------produco e invio un RREP");
 					sendRREP(p.getSrcId(), (int)p.getField("dstId"));
 					return;
 				}
 				
 				if(p.getHops() < (int)p.getField("ttl"))
 				{
-					System.out.println("["+currentNode.id+"]-- -- invio ancora RREQ - "+p.broad);
+					//System.out.println("["+currentNode.id+"]-- -- invio ancora RREQ - "+p.broad);
 					send(p);
 				}
 				
@@ -140,7 +149,7 @@ public class GCR extends Routing {
 				{
 					if(!currentNode.dataSent)
 					{
-						System.out.println("Arrivato RREP da "+p.getSrcId()+" dove VOLEVO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+						//System.out.println("Arrivato RREP da "+p.getSrcId()+" dove VOLEVO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 						currentNode.dataSent = true;
 						currentNode.data.nextId = currentNode.rt.getNext(dest_id);
 						currentNode.data.updateField("greedyMode", false);
@@ -148,7 +157,7 @@ public class GCR extends Routing {
 					}
 				}
 				else {
-					System.out.println(" ... forwardo RREP");
+					//System.out.println(" ... forwardo RREP");
 					p.nextId = currentNode.rt.getNext(p.getDstId());
 					send(p);
 				}

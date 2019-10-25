@@ -34,7 +34,8 @@ public class Node
 	public boolean RREQ_received;
 	public Packet data;
 	public boolean dataSent;
-
+	public boolean involved;
+	
 	public Node(int id_node, double xx, double yy, double zz)
 	{
 		id = id_node;

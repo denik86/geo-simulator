@@ -31,6 +31,8 @@ public class Routing {
 	Trace trace;
 	
 	public int hops;
+	public int dataPacketSent;
+	public int routingPacketSent;
 	
 	public Routing(Topology t, int s, int d, int maxH)
 	{
@@ -45,6 +47,10 @@ public class Routing {
 		eventId = 0;
 		e = null;
 		packetSizes = new ArrayList<Integer>();
+		
+		hops = 0;
+		dataPacketSent = 0;
+		routingPacketSent = 0;
 	}
 	
 	// metho executed at first step (source node)
@@ -104,7 +110,6 @@ public class Routing {
 					continue;
 				}
 				
-
 				receive(p, topo.get(p.nextId));
 				
 				// DESTINATION REACHED - STOP
@@ -153,6 +158,10 @@ public class Routing {
 		p.setFromId(e.nodeId);
 			
 		if(p.broad) {
+			if(p.type == PacketType.DATA)
+				dataPacketSent++;
+			else if(p.type == PacketType.ROUTING)
+				routingPacketSent++;
 			//System.out.println("Avvio un broadcast");
 			p.incrHops();
 			for(int i = 0; i < currentNode.n; i++)
@@ -188,6 +197,11 @@ public class Routing {
 			System.out.println("ROUTING ERROR: loop on node itself");
 			return;
 		}
+		
+		if(p.type == PacketType.DATA)
+			dataPacketSent++;
+		else if(p.type == PacketType.ROUTING)
+			routingPacketSent++;
 		
 		//System.out.println("Packet sent correctly");
 		p.incrHops();
