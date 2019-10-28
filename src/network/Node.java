@@ -31,7 +31,7 @@ public class Node
 	
 	//TODO Cancellare queste proprieta dopo aver trovato il modo
 	public RoutingTable rt;
-	public boolean RREQ_received;
+	public int RREQ_id;
 	public Packet data;
 	public boolean dataSent;
 	public boolean involved;
@@ -46,7 +46,7 @@ public class Node
 		z = zz;
 		rt = new RoutingTable();
 		
-		RREQ_received = false;
+		RREQ_id = -1;
 		dataSent = false;
 	}
 	

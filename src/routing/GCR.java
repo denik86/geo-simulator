@@ -18,10 +18,7 @@ public class GCR extends Routing {
 		
 	public void receive(Packet p, Node c)
 	{
-		if(!c.involved) {
-			nodesInvolved++;
-			c.involved = true;
-		}
+
 		if(p.type == PacketType.DATA)
 		{
 			System.out.println("-- Arrivato DATA "+ p);
@@ -43,6 +40,7 @@ public class GCR extends Routing {
 				p.addField("dstX", d.x);
 				p.addField("dstY", d.y);
 				p.addField("dstZ", d.z);
+				p.addField("nMin", 0);
 				
 				p.addField("closestDist", c.distance(d));
 			}
@@ -80,6 +78,10 @@ public class GCR extends Routing {
 			if(nextNodeId == NOTFOUND)
 			{
 				System.out.println("Closer node not found, send a RREQ");
+				int nMin = (int)p.getField("nMin");
+				nMin++;
+				currentNode.RREQ_id = nMin;
+				p.updateField("nMin", nMin);
 				c.data = p;
 				// create a broadcast RREQ Packet
 				Packet broad = new Packet(c.id, -1);
@@ -90,6 +92,7 @@ public class GCR extends Routing {
 				broad.addField("minDist", minDist);
 				broad.addField("ttl", ttlR);
 				broad.addField("CGRType", "RREQ");
+				broad.addField("nMin", nMin);
 				broad.broad = true;
 				//broad.nextId = BROADCAST;
 				broad.type = PacketType.ROUTING;
@@ -107,17 +110,17 @@ public class GCR extends Routing {
 		// ROUTING Packet
 		else if(p.type == PacketType.ROUTING)
 		{
-			if(p.getField("CGRType") == "RREQ" && !c.RREQ_received)
+			if(p.getField("CGRType") == "RREQ" && c.RREQ_id < (int)p.getField("nMin"))
 			{
-				c.RREQ_received = true;
-				//System.out.println("["+currentNode.id+"]-- Arrivato un RREQ "+p);
+				c.RREQ_id = (int)p.getField("nMin");
+				System.out.println("["+currentNode.id+"]-- Arrivato un RREQ "+p);
 
 				
 				c.rt.addEntry(p.getSrcId(), p.getFromId(), p.getHops());
 				
 				if(c.id == (int)p.getField("dstId")) 
 				{// i am the destination
-					//System.out.println("-----SONO DESTINAZIONE-------------produco e invio un RREP");
+					System.out.println("-----SONO DESTINAZIONE-------------produco e invio un RREP");
 					sendRREP(p.getSrcId(), (int)p.getField("dstId"));
 						
 					//........
@@ -157,7 +160,7 @@ public class GCR extends Routing {
 					}
 				}
 				else {
-					//System.out.println(" ... forwardo RREP");
+					System.out.println(" ... forwardo RREP");
 					p.nextId = currentNode.rt.getNext(p.getDstId());
 					send(p);
 				}

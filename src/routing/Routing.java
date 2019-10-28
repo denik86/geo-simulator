@@ -30,9 +30,12 @@ public class Routing {
 	State state;
 	Trace trace;
 	
-	public int hops;
-	public int dataPacketSent;
-	public int routingPacketSent;
+	// quando multi packets, bisogna fare array
+	public static int hops; 
+	public static int dataForwards; // number of data packet forwards
+	public static int routingForwards; // number of routing packet forwards
+	public static int involvedTxNodes;
+	public static int involvedRxNodes;
 	
 	public Routing(Topology t, int s, int d, int maxH)
 	{
@@ -49,8 +52,10 @@ public class Routing {
 		packetSizes = new ArrayList<Integer>();
 		
 		hops = 0;
-		dataPacketSent = 0;
-		routingPacketSent = 0;
+		dataForwards = 0;
+		routingForwards = 0;
+		involvedRxNodes = 0;
+		involvedTxNodes = 0;
 	}
 	
 	// metho executed at first step (source node)
@@ -60,8 +65,6 @@ public class Routing {
 	
 	public void run() {
 
-		System.out.println("sid " + currentNode.id);
-		
 		// Create the packet from source node
 		Packet p = new Packet(SOURCE_ID, DESTINATION_ID, -1);
 		p.type = PacketType.DATA;
@@ -72,12 +75,12 @@ public class Routing {
 		Event first_e = new Event(EventType.PACKETRECEIVE, SOURCE_ID, p, -1, -1);
 		addEvent(first_e);
 		
-		while(state == State.NOTFINISHED)
+		while(state == State.NOTFINISHED && eventList.size() < 400)
 		{	
 			if(eventId >= eventList.size())
 			{
 				System.out.println("!!! EventListener Empty !!!");
-				System.exit(1);
+				return;
 			}
 			//System.out.println("event list size = " + eventList.size());
 			e = eventList.get(eventId);
@@ -153,15 +156,18 @@ public class Routing {
 
 	public void send(Packet p)
 	{
-		
+		if(!currentNode.involved) {
+			involvedTxNodes++;
+			currentNode.involved = true;
+		}
 		// Set of fromId (the current node of this event)
 		p.setFromId(e.nodeId);
 			
 		if(p.broad) {
 			if(p.type == PacketType.DATA)
-				dataPacketSent++;
+				dataForwards++;
 			else if(p.type == PacketType.ROUTING)
-				routingPacketSent++;
+				routingForwards++;
 			//System.out.println("Avvio un broadcast");
 			p.incrHops();
 			for(int i = 0; i < currentNode.n; i++)
@@ -199,9 +205,9 @@ public class Routing {
 		}
 		
 		if(p.type == PacketType.DATA)
-			dataPacketSent++;
+			dataForwards++;
 		else if(p.type == PacketType.ROUTING)
-			routingPacketSent++;
+			routingForwards++;
 		
 		//System.out.println("Packet sent correctly");
 		p.incrHops();

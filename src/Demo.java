@@ -24,12 +24,12 @@ class Config //extends JPanel
 	final int FAILHOPS = 100;
 	
 	// STATS VARIABLES
-	int totSucc;
+	public int totSucc;
 	int totGreedyFails;
 	int [] totHops;
-	int [] totDataSent;
-	int [] totRoutingSent;
-	int [] nodesInvolved;
+	int [] totData;
+	int [] totRouting;
+	int [] txInvolved;
 	int [] localMinima;
 
 	public Config(int _n_nodes, double _max_x, double _max_y, double _max_z, double _range, int startTabuSize, boolean dyn, int runs, String topologies_dir)
@@ -40,9 +40,9 @@ class Config //extends JPanel
 		MAX_Z = _max_z;
 		RANGE = _range;
 		totHops = new int[runs];
-		totDataSent = new int[runs];
-		totRoutingSent = new int[runs];
-		nodesInvolved = new int[runs];
+		totData = new int[runs];
+		totRouting = new int[runs];
+		txInvolved = new int[runs];
 		tabuSize = startTabuSize;
 		run_i = 0;
 		localMinima = new int[runs];
@@ -93,11 +93,13 @@ class Config //extends JPanel
 		
 		if(routing.success()) {
 			totHops[run_i] = routing.hops;
-			totDataSent[run_i] = routing.dataPacketSent;
-			totRoutingSent[run_i] = routing.routingPacketSent;
-			nodesInvolved[run_i] = routing.nodesInvolved;
+			totData[run_i] = routing.dataForwards;
+			totRouting[run_i] = routing.routingForwards;
+			txInvolved[run_i] = routing.involvedTxNodes;
 			totSucc += routing.getSuccess();
-			System.out.println("hops = " + totHops[run_i] + ", "+nodesInvolved[run_i]);
+			System.out.println("hops\tData\tRouting\tNodesInvolved");
+			System.out.println(totHops[run_i] + "\t" + totData[run_i] + "\t" + totRouting[run_i] + "\t"
+				+ txInvolved[run_i]);
 		}
 		
 		// TODO FARE SISTEMA DI TRACING
@@ -125,20 +127,23 @@ public class Demo
 		int []nodes = {50, 100, 150, 200};
 		
 		boolean one_run = true;
-		int run = 1;
+		int run = 83;
 		int t = 30;
 		int n = 100;
 		
-		String topodir = "topologies";
-		
-	
-		//System.out.println("p1h = " + p1.h.a + ", p2h = " + p2.h.a);
-		
-	
+		String topodir = "../topologies";
+			
 		if(one_run) {
 			Config conf = new Config(n, dim, dim, 0, r, t, true, runs, topodir);
-			conf.ttl = 10;
-			conf.run(run);
+			conf.ttl = 9;
+			
+
+			//for(int i = 1; i <= runs; i++)
+			//{
+				//System.out.println("ITER: "+ i);
+				conf.run(run);
+			//}
+			System.out.println("Success: " + conf.totSucc);
 			System.exit(0);
 		}
 		/*
@@ -193,8 +198,6 @@ public class Demo
 			} catch (Exception e) {} 
 			
 		}
-		
-		
 		*/
 	}
 }
