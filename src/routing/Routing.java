@@ -16,6 +16,7 @@ public class Routing {
 	}
 	static final int NOTFOUND = -1; 
 	static final int ROUTINGERROR = -2;
+	static final int MAX_EVENT_SIZE = 5000;
 	//static final int BROADCAST = -3;
 	static String errormessage = "";
 	Topology topo; // topology
@@ -75,8 +76,14 @@ public class Routing {
 		Event first_e = new Event(EventType.PACKETRECEIVE, SOURCE_ID, p, -1, -1);
 		addEvent(first_e);
 		
-		while(state == State.NOTFINISHED && eventList.size() < 400)
+		while(state == State.NOTFINISHED)
 		{	
+			if(eventList.size() > MAX_EVENT_SIZE)
+			{
+				System.out.println("!!! ERROR: Scheduler too long !!!");
+				return;
+			}
+				
 			if(eventId >= eventList.size())
 			{
 				System.out.println("!!! EventListener Empty !!!");

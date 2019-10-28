@@ -18,7 +18,6 @@ class Config //extends JPanel
 	double RANGE;
 	final int MAXTABU = 1000; // max number of nodes in tabu list
 	int tabuSize;
-	int run_i;
 	public int ttl;
 	String topo_dir;
 	final int FAILHOPS = 100;
@@ -44,7 +43,6 @@ class Config //extends JPanel
 		totRouting = new int[runs];
 		txInvolved = new int[runs];
 		tabuSize = startTabuSize;
-		run_i = 0;
 		localMinima = new int[runs];
 		totGreedyFails = 0;
 		topo_dir = topologies_dir;
@@ -54,6 +52,7 @@ class Config //extends JPanel
 	public void run(int iteration) throws Exception
 	{
 		System.out.println("RUN " + iteration);
+		int run_i = iteration-1;
 				
 		BufferedWriter file = null;
 		BufferedWriter stateFile = null;
@@ -97,7 +96,7 @@ class Config //extends JPanel
 			totRouting[run_i] = routing.routingForwards;
 			txInvolved[run_i] = routing.involvedTxNodes;
 			totSucc += routing.getSuccess();
-			System.out.println("hops\tData\tRouting\tNodesInvolved");
+			System.out.println("hops\tDataPkt\tRoutingPkt\tNodesInvolved");
 			System.out.println(totHops[run_i] + "\t" + totData[run_i] + "\t" + totRouting[run_i] + "\t"
 				+ txInvolved[run_i]);
 		}
@@ -127,78 +126,28 @@ public class Demo
 		int []nodes = {50, 100, 150, 200};
 		
 		boolean one_run = true;
-		int run = 83;
+		int run = 12;
 		int t = 30;
 		int n = 100;
 		
-		String topodir = "../topologies";
+		//String topodir = "../topologies";
+		String topodir = "./topologies";
 			
 		if(one_run) {
 			Config conf = new Config(n, dim, dim, 0, r, t, true, runs, topodir);
-			conf.ttl = 9;
+			conf.ttl = 10;
 			
 
-			//for(int i = 1; i <= runs; i++)
-			//{
-				//System.out.println("ITER: "+ i);
-				conf.run(run);
-			//}
-			System.out.println("Success: " + conf.totSucc);
+			for(int i = 1; i <= runs; i++)
+			{
+				conf.run(i);
+			}
+			System.out.println("Delivery\tHops\tDataPkt\tRoutingPkt\tNodesInvolved");
+			System.out.println(conf.totSucc + "\t"+ Stat.mean(conf.totHops)+"\t"+Stat.mean(conf.totData)+"\t"+
+					Stat.mean(conf.totRouting)+"\t"+Stat.mean(conf.txInvolved));
 			System.exit(0);
 		}
-		/*
-		// MultiRUN
-		for(int t_id = 0; t_id < tabu_sizes.length; t_id++)
-		{
-			//Stat stat = new Stat(runs, nodes[n_id], tabu_sizes[t_id])
-			
 
-				stats = new BufferedWriter(new FileWriter("draw_geo/statsTabu_"+ts+"_reset.txt"));
-			} catch (Exception e) {} 
-			
-			try {
-				stats.write("Nodes\tDeliveryTabu\tAverageHops\tVarHops\tAverageLocalMinima\t"+
-							"VarLocalMinima\tDeliveryGreedy");
-				stats.newLine();
-			} catch (IOException e) {}
-			
-			// for each density ...
-			for(int n_id = 0; n_id < nodes.length; n_id ++)
-			{		
-				System.out.println("Configuration: Dim = "+dim+", range = "+r+", n = "+nodes[n_id]+", tabu length = "+ts);
-				Config conf = new Config(nodes[n_id], dim, dim, 0, r, ts, true, runs, topodir);
-				
-				if(one_run)
-				{
-					System.out.println("SINGLE RUN: "+ run);
-					conf.run(run);
-				}
-				else
-				{
-					for(int i = 1; i <= runs; i++)
-					{
-						System.out.println("ITER: "+ i);
-						conf.run(i);
-					}
-					
-					try {b
-						stats.write(""+nodes[n_id]+"\t"+
-								conf.totSucc+"\t"+
-								mean(conf.totHops)+"\t"+devst(var(conf.totHops))+"\t"+
-								mean(conf.localMinima)+"\t"+devst(var(conf.localMinima))+"\t"+
-								conf.totGreedyFails);
-						stats.newLine();
-					} catch (IOException e) {}
-					//System.out.println("SUCC: "+succ);
-				}
-			}}
-			
-			try {
-				stats.close();
-			} catch (Exception e) {} 
-			
-		}
-		*/
 	}
 }
 
