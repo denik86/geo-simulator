@@ -85,7 +85,8 @@ class Config //extends JPanel
 		int s_id = 0;
 		int d_id = 1;
 
-		GCR routing = new GCR(t, s_id, d_id, FAILHOPS, ttl);
+		//GCR routing = new GCR(t, s_id, d_id, FAILHOPS, ttl);
+		AODV routing = new AODV(t, s_id, d_id);
 		routing.run();
 			
 		// TERMINATO
@@ -125,7 +126,7 @@ public class Demo
 		int []tabu_sizes = {5, 10, 150, 20};
 		int []nodes = {50, 100, 150, 200};
 		
-		boolean one_run = true;
+		boolean one_run = false;
 		int run = 12;
 		int t = 30;
 		int n = 100;
@@ -133,21 +134,23 @@ public class Demo
 		//String topodir = "../topologies";
 		String topodir = "./topologies";
 			
-		if(one_run) {
-			Config conf = new Config(n, dim, dim, 0, r, t, true, runs, topodir);
-			conf.ttl = 10;
-			
 
+		Config conf = new Config(n, dim, dim, 0, r, t, true, runs, topodir);
+		conf.ttl = 10;
+		
+		if(one_run)
+			conf.run(run);
+		else {
 			for(int i = 1; i <= runs; i++)
 			{
 				conf.run(i);
 			}
-			System.out.println("Delivery\tHops\tDataPkt\tRoutingPkt\tNodesInvolved");
-			System.out.println(conf.totSucc + "\t"+ Stat.mean(conf.totHops)+"\t"+Stat.mean(conf.totData)+"\t"+
-					Stat.mean(conf.totRouting)+"\t"+Stat.mean(conf.txInvolved));
-			System.exit(0);
+		
 		}
-
+		System.out.println("Delivery\tHops\tDataPkt\tRoutingPkt\tNodesInvolved");
+		System.out.println(conf.totSucc + "\t"+ Stat.mean(conf.totHops)+"\t"+Stat.mean(conf.totData)+"\t"+
+		Stat.mean(conf.totRouting)+"\t"+Stat.mean(conf.txInvolved));
+		System.exit(0);
 	}
 }
 

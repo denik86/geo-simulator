@@ -70,7 +70,7 @@ public class Routing {
 		Packet p = new Packet(SOURCE_ID, DESTINATION_ID, -1);
 		p.type = PacketType.DATA;
 		p.nextId = SOURCE_ID;
-
+		
 		init();
 		// First event: source node receive pkt from upper layer
 		Event first_e = new Event(EventType.PACKETRECEIVE, SOURCE_ID, p, -1, -1);
@@ -89,6 +89,12 @@ public class Routing {
 				System.out.println("!!! EventListener Empty !!!");
 				return;
 			}
+			/*
+			System.out.println("*****Lista eventi da eseguire *****");
+			for(int i = eventId; i < eventList.size(); i++)
+				System.out.println("Evento "+i+" - "+eventList.get(i).pkt);
+			System.out.println("***********");
+			*/
 			//System.out.println("event list size = " + eventList.size());
 			e = eventList.get(eventId);
 			eventId++;
@@ -98,14 +104,7 @@ public class Routing {
 			
 			// -------- PACKET IS BEING RECEIVED --------------------------------------------
 			if(e.type == EventType.PACKETRECEIVE)
-			{
-				/*
-				System.out.println("*****Lista eventi da eseguire *****");
-				for(int i = eventId; i < eventList.size(); i++)
-					System.out.println("Evento "+i+" - "+eventList.get(i).pkt);
-				System.out.println("***********");
-				*/
-				
+			{			
 				p = e.pkt;
 				int nextId = p.nextId;
 				if(!p.broad && currentNode.id != nextId) {

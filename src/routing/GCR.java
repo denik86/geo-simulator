@@ -7,12 +7,10 @@ import routing.Packet.PacketType;
 
 public class GCR extends Routing {
 	
-	public int nodesInvolved;
 	public int ttlR;
 
 	public GCR(Topology t, int s, int d, int maxH, int ttlR) {
 		super(t, s, d, maxH);
-		nodesInvolved = 0;
 		this.ttlR = ttlR;
 	}
 		
