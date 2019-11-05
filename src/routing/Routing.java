@@ -31,6 +31,7 @@ public class Routing {
 	State state;
 	Trace trace;
 	
+	
 	// quando multi packets, bisogna fare array
 	public static int hops; 
 	public static int dataForwards; // number of data packet forwards
