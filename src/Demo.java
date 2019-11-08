@@ -97,7 +97,7 @@ class Config //extends JPanel
 			totRouting[run_i] = routing.routingForwards;
 			txInvolved[run_i] = routing.involvedTxNodes;
 			totSucc += routing.getSuccess();
-			//.out.println("hops\tDataPkt\tRoutingPkt\tNodesInvolved");
+			//System.out.println("hops\tDataPkt\tRoutingPkt\tNodesInvolved");
 			//System.out.println(totHops[run_i] + "\t" + totData[run_i] + "\t" + totRouting[run_i] + "\t"
 			//	+ txInvolved[run_i]);
 		}
@@ -123,13 +123,12 @@ public class Demo
 		double dim = 750;
 		
 		int runs = 100;
-		int []tabu_sizes = {5, 10, 150, 20};
 		int []nodes = {50, 100, 150, 200};
 		
 		boolean one_run = false;
 		int run = 12;
 		int t = 30;
-		int n = 100;
+		int n = 200;
 		
 		//String topodir = "../topologies";
 		String topodir = "./topologies";
@@ -147,7 +146,7 @@ public class Demo
 			}
 		
 		}
-		System.out.println("Delivery\tHops\tDataPkt\tRoutingPkt\tNodesInvolved");
+		System.out.println("Delivery\tHops\tDataPkt\tRoutingPkt\tNodesTx");
 		System.out.println(conf.totSucc + "\t"+ Stat.mean(conf.totHops)+"\t"+Stat.mean(conf.totData)+"\t"+
 		Stat.mean(conf.totRouting)+"\t"+Stat.mean(conf.txInvolved));
 		System.exit(0);

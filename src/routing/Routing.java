@@ -163,7 +163,8 @@ public class Routing {
 
 	public void send(Packet p)
 	{
-		if(p.getHops >= )
+		if(p.getHops() >= MAX_HOPS)
+			return;
 		if(!currentNode.involved) {
 			involvedTxNodes++;
 			currentNode.involved = true;
