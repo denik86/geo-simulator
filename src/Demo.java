@@ -86,7 +86,7 @@ class Config //extends JPanel
 		int d_id = 1;
 
 		//GCR routing = new GCR(t, s_id, d_id, FAILHOPS, ttl);
-		AODV routing = new AODV(t, s_id, d_id);
+		GCR routing = new GCR(t, s_id, d_id, 100, 10);
 		routing.run();
 			
 		// TERMINATO
@@ -97,9 +97,9 @@ class Config //extends JPanel
 			totRouting[run_i] = routing.routingForwards;
 			txInvolved[run_i] = routing.involvedTxNodes;
 			totSucc += routing.getSuccess();
-			System.out.println("hops\tDataPkt\tRoutingPkt\tNodesInvolved");
-			System.out.println(totHops[run_i] + "\t" + totData[run_i] + "\t" + totRouting[run_i] + "\t"
-				+ txInvolved[run_i]);
+			//.out.println("hops\tDataPkt\tRoutingPkt\tNodesInvolved");
+			//System.out.println(totHops[run_i] + "\t" + totData[run_i] + "\t" + totRouting[run_i] + "\t"
+			//	+ txInvolved[run_i]);
 		}
 		
 		// TODO FARE SISTEMA DI TRACING

@@ -125,7 +125,7 @@ public class Routing {
 				// DESTINATION REACHED - STOP
 				if(p.type == PacketType.DATA && nextId == DESTINATION_ID) {
 					state = State.SUCCESS;
-					System.out.println("=== Packet delivered. Simulation STOP ===");
+					//System.out.println("=== Packet delivered. Simulation STOP ===");
 					hops = p.getHops();
 					return;
 				} 

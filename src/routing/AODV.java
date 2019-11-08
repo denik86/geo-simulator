@@ -19,7 +19,7 @@ public class AODV extends Routing {
 
 		if(p.type == PacketType.DATA)
 		{
-			System.out.println("-- Arrivato DATA "+ p);
+			//System.out.println("-- Arrivato DATA "+ p);
 			Node d = topo.get(DESTINATION_ID);
 			if(c.id == DESTINATION_ID)
 			{
@@ -66,7 +66,7 @@ public class AODV extends Routing {
 				
 				if(c.id == (int)p.getField("dstId")) 
 				{// i am the destination
-					System.out.println("["+currentNode.id+"]-- RREQ "+p+ "-----SONO DESTINAZIONE-------------produco e invio un RREP");					
+					//System.out.println("["+currentNode.id+"]-- RREQ "+p+ "-----SONO DESTINAZIONE-------------produco e invio un RREP");					
 					Packet rrep = new Packet(currentNode.id, p.getSrcId());
 					rrep.type = PacketType.ROUTING;
 					rrep.addField("AODVType", "RREP");
@@ -85,7 +85,7 @@ public class AODV extends Routing {
 									
 			} else if (p.getField("AODVType") == "RREP")
 			{
-				System.out.print("["+currentNode.id+"] -- RREP arrivato ");
+				//System.out.print("["+currentNode.id+"] -- RREP arrivato ");
 				
 				//currentNode.RREQ_id = (int)p.getField("nMin");
 				
