@@ -24,14 +24,14 @@ public class Stat {
 	public static double mean(int[] v, int[] consider)
 	{
 		int count = 0;
-	    double summ = 0.0;
+	    double sum = 0.0;
 	    for (int i = 0; i < v.length; i++) {
 	      if(consider[i] == 1) {
 	    	count++;
-	    	summ += v[i];
+	    	sum += v[i];
 	      }
 	    }
-	    return summ / count;
+	    return sum / count;
 	}
 	
 	public static double var(int[] v) {

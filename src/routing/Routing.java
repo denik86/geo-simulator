@@ -30,6 +30,7 @@ public class Routing {
 	ArrayList<Integer> packetSizes;
 	State state;
 	Trace trace;
+	double currentTime;
 	
 	
 	// quando multi packets, bisogna fare array
@@ -52,6 +53,7 @@ public class Routing {
 		eventId = 0;
 		e = null;
 		packetSizes = new ArrayList<Integer>();
+		currentTime = 0;
 		
 		hops = 0;
 		dataForwards = 0;
@@ -74,7 +76,7 @@ public class Routing {
 		
 		init();
 		// First event: source node receive pkt from upper layer
-		Event first_e = new Event(EventType.PACKETRECEIVE, SOURCE_ID, p, -1, -1);
+		Event first_e = new Event(EventType.PACKETRECEIVE, SOURCE_ID, p, currentTime, -1);
 		addEvent(first_e);
 		
 		while(state == State.NOTFINISHED)
@@ -90,18 +92,21 @@ public class Routing {
 				System.out.println("!!! EventListener Empty !!!");
 				return;
 			}
+			
 			/*
 			System.out.println("*****Lista eventi da eseguire *****");
 			for(int i = eventId; i < eventList.size(); i++)
-				System.out.println("Evento "+i+" - "+eventList.get(i).pkt);
+				System.out.println("Evento "+i+" - "+eventList.get(i));
 			System.out.println("***********");
 			*/
+			
 			//System.out.println("event list size = " + eventList.size());
 			e = eventList.get(eventId);
 			eventId++;
 			
-			// Node in which event happens
+			// Node and time in which event happens
 			currentNode = topo.get(e.nodeId);
+			currentTime = e.time;
 			
 			// -------- PACKET IS BEING RECEIVED --------------------------------------------
 			if(e.type == EventType.PACKETRECEIVE)
@@ -149,7 +154,16 @@ public class Routing {
 
 	public void addEvent(Event e)
 	{
+		for(int i = eventId; i < eventList.size(); i++)
+		{
+			if(e.time < eventList.get(i).time) {
+				eventList.add(i, e);
+				return;
+			}
+		}
 		eventList.add(e);
+		
+		
 	}
 
 	// TODO: il metodo deve avere anche Node n come parametro. cosi il metodo usa anche le info memorizzate
@@ -184,7 +198,8 @@ public class Routing {
 				
 				Packet broadPkt = new Packet(p);
 				broadPkt.nextId = currentNode.getNeighborId(i);
-				Event recvEvent = new Event(EventType.PACKETRECEIVE, broadPkt.nextId, broadPkt, -1, -1);
+				double delay = currentNode.distance(topo.get(broadPkt.nextId)) / 100;
+				Event recvEvent = new Event(EventType.PACKETRECEIVE, broadPkt.nextId, broadPkt, currentTime+delay, -1);
 				addEvent(recvEvent);
 				//System.out.println("Inviato a nodo " + currentNode.getNeighborId(i) + "broad = "+broadPkt.broad);
 				
@@ -220,7 +235,8 @@ public class Routing {
 		
 		//System.out.println("Packet sent correctly");
 		p.incrHops();
-		Event recvEvent = new Event(EventType.PACKETRECEIVE, p.nextId, p, -1, -1);
+		double delay = currentNode.distance(topo.get(p.nextId)) / 100;
+		Event recvEvent = new Event(EventType.PACKETRECEIVE, p.nextId, p, currentTime+delay, -1);
 		addEvent(recvEvent);
 	}
 

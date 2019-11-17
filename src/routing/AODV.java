@@ -9,8 +9,8 @@ public class AODV extends Routing {
 	
 	public int nodesInvolved;
 
-	public AODV(Topology t, int s, int d) {
-		super(t, s, d, 0);
+	public AODV(Topology t, int s, int d, int maxH, int b) {
+		super(t, s, d, maxH);
 		nodesInvolved = 0;
 	}
 		
@@ -19,7 +19,7 @@ public class AODV extends Routing {
 
 		if(p.type == PacketType.DATA)
 		{
-			//System.out.println("-- Arrivato DATA "+ p);
+			System.out.println("-- Arrivato DATA "+ p);
 			Node d = topo.get(DESTINATION_ID);
 			if(c.id == DESTINATION_ID)
 			{
@@ -30,6 +30,7 @@ public class AODV extends Routing {
 			// We are in the source node, so I send the RREQ 
 			if(c.id == SOURCE_ID && p.getHops() == 0)
 			{
+				//System.out.println("Send a RREQ packet");
 				c.RREQ_id = 1;
 				c.data = p; // memorizzo il pacchetto nel nodo
 				Packet broad = new Packet(c.id, -1);
@@ -66,7 +67,7 @@ public class AODV extends Routing {
 				
 				if(c.id == (int)p.getField("dstId")) 
 				{// i am the destination
-					//System.out.println("["+currentNode.id+"]-- RREQ "+p+ "-----SONO DESTINAZIONE-------------produco e invio un RREP");					
+					System.out.println("["+currentNode.id+"]-- RREQ "+p+ "-----SONO DESTINAZIONE-------------produco e invio un RREP");					
 					Packet rrep = new Packet(currentNode.id, p.getSrcId());
 					rrep.type = PacketType.ROUTING;
 					rrep.addField("AODVType", "RREP");
@@ -85,7 +86,7 @@ public class AODV extends Routing {
 									
 			} else if (p.getField("AODVType") == "RREP")
 			{
-				//System.out.print("["+currentNode.id+"] -- RREP arrivato ");
+				//System.out.print("["+currentNode.id+"] -- RREP arrivato " + p);
 				
 				//currentNode.RREQ_id = (int)p.getField("nMin");
 				

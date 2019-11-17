@@ -12,18 +12,25 @@ public class Event
 	int nodeId;
 	EventType type;
 	Packet pkt;
+	double time;
 	
 	int var1;
 	double var2;
 	
 	// nodeId current node of the event
 
-	public Event(EventType t, int nId, Packet p, int v1, double v2) {
+	public Event(EventType t, int nId, Packet p, double time, double v2) {
 		type = t;
 		nodeId = nId;
 		pkt = p;
-		var1 = v1;
+		this.time = time;
 		var2 = v2;
 		// TODO: OVVIAMENTE FROM ID E HOPS ANDRANNO SULLA CLASSE PACKET 
+	}
+	
+	public String toString()
+	{
+		String s = "Event: " + type + ", node=" + nodeId + ", pkt=" + pkt + ", time=" + time;
+		return s;
 	}
 }

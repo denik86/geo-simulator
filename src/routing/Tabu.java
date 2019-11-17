@@ -35,6 +35,16 @@ public class Tabu extends Routing{
 				//System.out.println("SUCESSSSSSSSSSSSS.");
 				return;
 			}
+			
+			if(c.id == SOURCE_ID && p.getHops() == 0)
+			{
+				p.addField("dstX", topo.get(DESTINATION_ID).x);
+				p.addField("dstY", topo.get(DESTINATION_ID).y);
+				//p.addField("dstZ", topo.get(DESTINATION_ID).z);
+				p.addField("tabu", tabuList);
+				tabuList.add(c.id);
+			TODO CONTINUARE
+			}
 
 
 		}

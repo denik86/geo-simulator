@@ -24,7 +24,7 @@ class Config //extends JPanel
 	
 	// STATS VARIABLES
 	public int totSucc;
-	int totGreedyFails;
+	int [] succ;
 	int [] totHops;
 	int [] totData;
 	int [] totRouting;
@@ -38,13 +38,13 @@ class Config //extends JPanel
 		MAX_Y = _max_y;
 		MAX_Z = _max_z;
 		RANGE = _range;
+		succ = new int[runs];
 		totHops = new int[runs];
 		totData = new int[runs];
 		totRouting = new int[runs];
 		txInvolved = new int[runs];
 		tabuSize = startTabuSize;
 		localMinima = new int[runs];
-		totGreedyFails = 0;
 		topo_dir = topologies_dir;
 	}
 
@@ -85,13 +85,16 @@ class Config //extends JPanel
 		int s_id = 0;
 		int d_id = 1;
 
+		Tabu routing = new Tabu(t, s_id, d_id, FAILHOPS, ttl);
 		//GCR routing = new GCR(t, s_id, d_id, FAILHOPS, ttl);
-		GCR routing = new GCR(t, s_id, d_id, 100, 10);
+		//AODV routing = new AODV(t, s_id, d_id, 100, 10);
+		//GreedyRouting routing = new GreedyRouting(t, s_id, d_id, 100, 10);
 		routing.run();
 			
 		// TERMINATO
 		
 		if(routing.success()) {
+			succ[run_i] = 1;
 			totHops[run_i] = routing.hops;
 			totData[run_i] = routing.dataForwards;
 			totRouting[run_i] = routing.routingForwards;
@@ -126,9 +129,9 @@ public class Demo
 		int []nodes = {50, 100, 150, 200};
 		
 		boolean one_run = false;
-		int run = 12;
+		int run = 20;
 		int t = 30;
-		int n = 200;
+		int n = 50;
 		
 		//String topodir = "../topologies";
 		String topodir = "./topologies";
@@ -144,11 +147,10 @@ public class Demo
 			{
 				conf.run(i);
 			}
-		
 		}
 		System.out.println("Delivery\tHops\tDataPkt\tRoutingPkt\tNodesTx");
-		System.out.println(conf.totSucc + "\t"+ Stat.mean(conf.totHops)+"\t"+Stat.mean(conf.totData)+"\t"+
-		Stat.mean(conf.totRouting)+"\t"+Stat.mean(conf.txInvolved));
+		System.out.println(conf.totSucc + "\t"+ Stat.mean(conf.totHops, conf.succ)+"\t"+Stat.mean(conf.totData, conf.succ)+"\t"+
+		Stat.mean(conf.totRouting, conf.succ)+"\t"+Stat.mean(conf.txInvolved, conf.succ));
 		System.exit(0);
 	}
 }

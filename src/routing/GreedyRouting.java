@@ -6,7 +6,7 @@ import network.Topology;
 
 public class GreedyRouting extends Routing {
 
-	public GreedyRouting(Topology t, int s, int d, int maxH) {
+	public GreedyRouting(Topology t, int s, int d, int maxH, int a) {
 		super(t, s, d, maxH);
 	}
 	
@@ -25,12 +25,12 @@ public class GreedyRouting extends Routing {
 		// TEST PER CAPIRE SE SIAMO IL SOURCE NODE O NO
 		// SE LO SIAMO, ALLORA BISOGNA INIZIALIZZARE I CAMPI
 		// DEL PACCHETTO E LE PROPRIETÀ DEL NODO.
-		System.out.println("Node "+ c.id + " receives the "+p.toString());
+		//System.out.println("Node "+ c.id + " receives the "+p.toString());
 		
 		
 		if(c.id == DESTINATION_ID)
 		{
-			System.out.println("SUCESSSSSSSSSSSSS.");
+			//System.out.println("SUCESSSSSSSSSSSSS.");
 			return;
 		}
 		
