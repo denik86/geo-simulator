@@ -7,6 +7,10 @@ import java.util.Set;
 
 class PacketException extends Exception {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	String message;
 	   public PacketException(String m) { message = m; }
 
@@ -25,6 +29,8 @@ public class Packet
 	
 	private int hops;
 	public PacketType type;
+	
+	public String routingName;
 	
 	public boolean broad;
 	
@@ -45,10 +51,10 @@ public class Packet
 	 */
 	public Packet(int sourceId, int destinationId, int fromNodeId)
 	{
-		srcId = sourceId;
-		dstId = destinationId;
+		srcId = sourceId; // 4 byte
+		dstId = destinationId; // 4 byte
 		fromId = fromNodeId;
-		hops = 0;
+		hops = 0; // 1 byte
 		broad = false;
 		fields = null;
 	}
@@ -73,6 +79,54 @@ public class Packet
 				updateField(key, p.getField(key));
 			}
 		}
+	}
+	
+	public int size()
+	{
+		int bytes = 0;
+		if(this.type == PacketType.ROUTING)
+		{
+			if(this.getField("AODVType") == "RREQ" || 
+			   this.getField("AODVType") == "RREP")
+			{
+				// Type + hop count + rreq id + originID + destID
+				bytes += 4 + 4 + 1;
+				bytes += 4 + 4;
+			}
+			
+			if(this.getField("CGRType") == "RREQ")
+			{
+				bytes += 1+1+4+(4+4)+4+4+4;
+			}
+			
+			if(this.getField("CGRType") == "RREP")
+			{
+				bytes += 1+1+4+4+4;
+			}
+		}
+		
+		if(this.type == PacketType.DATA)
+		{
+			if(this.routingName.equals("GCR"))
+			{
+				bytes += 1+ (4+4) + 4;
+			}
+			
+			if(this.routingName.equals("Tabu"))
+			{
+				bytes += 1+1+(4+4)+4+1+1+1;
+				TabuList tl = (TabuList) this.getField("tabu");
+				bytes += 4*tl.nElements();
+			}
+
+			if(this.routingName.equals("GreedyRouting"))
+			{	
+				bytes += 1 + 1 + (4+4); 
+			}
+		}
+		
+		
+		return bytes;
 	}
 	
 	/**
@@ -158,6 +212,11 @@ public class Packet
 	public int getHops()
 	{
 		return hops;
+	}
+	
+	public void setRoutingName(String s)
+	{
+		routingName = s;
 	}
 	
 	public int incrHops()

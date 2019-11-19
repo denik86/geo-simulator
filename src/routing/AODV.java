@@ -36,6 +36,7 @@ public class AODV extends Routing {
 				Packet broad = new Packet(c.id, -1);
 				broad.addField("dstId", d.id);
 				broad.addField("AODVType", "RREQ");
+				broad.addField("AODV_ID", "id_n");
 				broad.broad = true;
 				broad.type = PacketType.ROUTING;
 				send(broad);

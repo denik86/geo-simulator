@@ -54,10 +54,10 @@ class Config //extends JPanel
 		System.out.println("RUN " + iteration);
 		int run_i = iteration-1;
 				
-		BufferedWriter file = null;
-		BufferedWriter stateFile = null;
+		//BufferedWriter file = null;
+		//BufferedWriter stateFile = null;
 		//BufferedWriter topologyWrite = null;
-		BufferedReader topologyRead = null;
+		//BufferedReader topologyRead = null;
 		String topo = "topo_750x750_n"+N_NODES+"_r"+(int)RANGE+"/topo_"+iteration+".topo";
 		Topology t = new Topology(N_NODES, RANGE);
 		try {
@@ -85,11 +85,14 @@ class Config //extends JPanel
 		int s_id = 0;
 		int d_id = 1;
 
-		Tabu routing = new Tabu(t, s_id, d_id, FAILHOPS, ttl);
+		Tabu routing = new Tabu(t, s_id, d_id, FAILHOPS, 3);
 		//GCR routing = new GCR(t, s_id, d_id, FAILHOPS, ttl);
 		//AODV routing = new AODV(t, s_id, d_id, 100, 10);
 		//GreedyRouting routing = new GreedyRouting(t, s_id, d_id, 100, 10);
 		routing.run();
+		
+		System.out.println(routing.getSumPacketSizes());
+		System.out.println(routing.getPacketSizesPerHop());
 			
 		// TERMINATO
 		
@@ -128,10 +131,10 @@ public class Demo
 		int runs = 100;
 		int []nodes = {50, 100, 150, 200};
 		
-		boolean one_run = false;
-		int run = 20;
+		boolean one_run = true;
+		int run = 46;
 		int t = 30;
-		int n = 50;
+		int n = 100;
 		
 		//String topodir = "../topologies";
 		String topodir = "./topologies";

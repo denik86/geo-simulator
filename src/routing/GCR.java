@@ -31,9 +31,9 @@ public class GCR extends Routing {
 			if(c.id == SOURCE_ID && p.getHops() == 0)
 			{				
 				p.addField("greedyMode", true);
-				p.addField("srcX", c.x);
-				p.addField("srcY", c.y);
-				p.addField("srcZ", c.z);
+				//p.addField("srcX", c.x);
+				//p.addField("srcY", c.y);
+				//p.addField("srcZ", c.z);
 				
 				p.addField("dstX", d.x);
 				p.addField("dstY", d.y);

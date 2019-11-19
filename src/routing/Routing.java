@@ -68,11 +68,12 @@ public class Routing {
 	}
 	
 	public void run() {
-
+		
 		// Create the packet from source node
 		Packet p = new Packet(SOURCE_ID, DESTINATION_ID, -1);
 		p.type = PacketType.DATA;
 		p.nextId = SOURCE_ID;
+		p.setRoutingName(this.getClass().getSimpleName());
 		
 		init();
 		// First event: source node receive pkt from upper layer
@@ -179,20 +180,47 @@ public class Routing {
 	{
 		if(p.getHops() >= MAX_HOPS)
 			return;
+		
+		// FAILED - ROUTING PROTOCOL ERROR
+		if(!p.broad && p.nextId == ROUTINGERROR) {
+			state = State.FAILED;
+			System.out.println("ROUTING ERROR: " + errormessage);
+			return;
+		}
+		
+		// FAILED - NODE NOT FOUND
+		if(!p.broad && p.nextId == NOTFOUND) {
+			state = State.FAILED;
+			System.out.println("FAILED: Next node not found!");
+			return;
+		}
+		
+		// FAILED - NEXT NODE IS THE CURRENT NODE
+		if(!p.broad && p.nextId == p.getFromId()) {
+			state = State.FAILED;
+			System.out.println("ROUTING ERROR: loop on node itself");
+			return;
+		}
+			
+		// --- I CAN SEND THE PACKET ---- 
 		if(!currentNode.involved) {
 			involvedTxNodes++;
 			currentNode.involved = true;
 		}
+		
 		// Set of fromId (the current node of this event)
 		p.setFromId(e.nodeId);
+		
+		if(p.type == PacketType.DATA)
+			dataForwards++;
+		else if(p.type == PacketType.ROUTING)
+			routingForwards++;
+		
+		p.incrHops();
+		packetSizes.add(p.size());
 			
 		if(p.broad) {
-			if(p.type == PacketType.DATA)
-				dataForwards++;
-			else if(p.type == PacketType.ROUTING)
-				routingForwards++;
 			//System.out.println("Avvio un broadcast");
-			p.incrHops();
 			for(int i = 0; i < currentNode.n; i++)
 			{
 				
@@ -207,34 +235,7 @@ public class Routing {
 			return;
 		}
 		
-		// FAILED - ROUTING PROTOCOL ERROR
-		if(p.nextId == ROUTINGERROR) {
-			state = State.FAILED;
-			System.out.println("ROUTING ERROR: " + errormessage);
-			return;
-		}
-		
-		// FAILED - NODE NOT FOUND
-		if(p.nextId == NOTFOUND) {
-			state = State.FAILED;
-			System.out.println("FAILED: Next node not found!");
-			return;
-		}
-		
-		// FAILED - NEXT NODE IS THE CURRENT NODE
-		else if(p.nextId == p.getFromId()) {
-			state = State.FAILED;
-			System.out.println("ROUTING ERROR: loop on node itself");
-			return;
-		}
-		
-		if(p.type == PacketType.DATA)
-			dataForwards++;
-		else if(p.type == PacketType.ROUTING)
-			routingForwards++;
-		
 		//System.out.println("Packet sent correctly");
-		p.incrHops();
 		double delay = currentNode.distance(topo.get(p.nextId)) / 100;
 		Event recvEvent = new Event(EventType.PACKETRECEIVE, p.nextId, p, currentTime+delay, -1);
 		addEvent(recvEvent);
@@ -264,6 +265,19 @@ public class Routing {
 	
 	public ArrayList<Integer> getPacketSizes() {
 		return packetSizes;
+	}
+	
+	public int getSumPacketSizes()
+	{
+		int sum = 0;
+		for(int i = 0; i < packetSizes.size(); i++)
+			sum += packetSizes.get(i);
+		return sum;
+	}
+	
+	public double getPacketSizesPerHop()
+	{
+		return getSumPacketSizes() / dataForwards;
 	}
 	
 	public int getHopPacketSize(int i) {
