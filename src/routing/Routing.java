@@ -180,6 +180,9 @@ public class Routing {
 	{
 		if(p.getHops() >= MAX_HOPS)
 			return;
+
+		// Set of fromId (the current node of this event)
+		p.setFromId(e.nodeId);
 		
 		// FAILED - ROUTING PROTOCOL ERROR
 		if(!p.broad && p.nextId == ROUTINGERROR) {
@@ -191,7 +194,7 @@ public class Routing {
 		// FAILED - NODE NOT FOUND
 		if(!p.broad && p.nextId == NOTFOUND) {
 			state = State.FAILED;
-			System.out.println("FAILED: Next node not found!");
+			//System.out.println("FAILED: Next node not found!");
 			return;
 		}
 		
@@ -207,10 +210,7 @@ public class Routing {
 			involvedTxNodes++;
 			currentNode.involved = true;
 		}
-		
-		// Set of fromId (the current node of this event)
-		p.setFromId(e.nodeId);
-		
+				
 		if(p.type == PacketType.DATA)
 			dataForwards++;
 		else if(p.type == PacketType.ROUTING)

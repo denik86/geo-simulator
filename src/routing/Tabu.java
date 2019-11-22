@@ -14,7 +14,7 @@ public class Tabu extends Routing{
 	public boolean greedyEmpty = false;
 	public boolean inc1 = false;
 
-	double infinite = 999999;
+	double infinite = 99999.0;
 	int whenRandom;
 
 
@@ -37,6 +37,7 @@ public class Tabu extends Routing{
 			
 			if(c.id == SOURCE_ID && p.getHops() == 0)
 			{
+				//System.out.println("Sono il nodo sorgente");
 				p.addField("dstX", topo.get(DESTINATION_ID).x);
 				p.addField("dstY", topo.get(DESTINATION_ID).y);
 				p.addField("dstZ", topo.get(DESTINATION_ID).z);
@@ -77,7 +78,7 @@ public class Tabu extends Routing{
 				freeNodes = c.n;
 			}
 			
-			// se siamo in random e i nodi liberi sono più di 1
+			// se siamo in random e i nodi liberi sono piu di 1
 			if(randomMode && freeNodes > 1)
 			{
 				Random random = new Random();
@@ -141,7 +142,7 @@ public class Tabu extends Routing{
 			{
 				System.out.println("non dovrebbe andare qui!!!");
 			}
-			
+			//System.out.println("["+c.id+"], invio a " +nextNodeId);
 			p.nextId = nextNodeId;
 			//p.BROADCAST = true;
 			send(p);

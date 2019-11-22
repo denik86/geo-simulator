@@ -119,7 +119,7 @@ public class Packet
 				bytes += 4*tl.nElements();
 			}
 
-			if(this.routingName.equals("GreedyRouting"))
+			if(this.routingName.equals("Greedy"))
 			{	
 				bytes += 1 + 1 + (4+4); 
 			}

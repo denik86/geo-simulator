@@ -33,6 +33,19 @@ public class Stat {
 	    }
 	    return sum / count;
 	}
+
+		public static double mean(double[] v, int[] consider)
+	{
+		int count = 0;
+	    double sum = 0.0;
+	    for (int i = 0; i < v.length; i++) {
+	      if(consider[i] == 1) {
+	    	count++;
+	    	sum += v[i];
+	      }
+	    }
+	    return sum / count;
+	}
 	
 	public static double var(int[] v) {
 		double mu = mean(v);

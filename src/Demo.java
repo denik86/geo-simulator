@@ -30,6 +30,8 @@ class Config //extends JPanel
 	int [] totRouting;
 	int [] txInvolved;
 	int [] localMinima;
+	int [] bytesOverhead;
+	double [] bytesOverheadPerDataHop;
 
 	public Config(int _n_nodes, double _max_x, double _max_y, double _max_z, double _range, int startTabuSize, boolean dyn, int runs, String topologies_dir)
 	{
@@ -46,6 +48,9 @@ class Config //extends JPanel
 		tabuSize = startTabuSize;
 		localMinima = new int[runs];
 		topo_dir = topologies_dir;
+		bytesOverhead = new int[runs];
+		bytesOverheadPerDataHop = new double[runs];
+
 	}
 
 
@@ -58,7 +63,7 @@ class Config //extends JPanel
 		//BufferedWriter stateFile = null;
 		//BufferedWriter topologyWrite = null;
 		//BufferedReader topologyRead = null;
-		String topo = "topo_750x750_n"+N_NODES+"_r"+(int)RANGE+"/topo_"+iteration+".topo";
+		String topo = "topo-750-750-0-n"+N_NODES+"-r"+(int)RANGE+"/topo-750-750-0-n"+N_NODES+"-r"+(int)RANGE+"_"+iteration+".topo";
 		Topology t = new Topology(N_NODES, RANGE);
 		try {
 			//file = new BufferedWriter(new FileWriter("draw_geo/coordinates.txt"));
@@ -86,13 +91,13 @@ class Config //extends JPanel
 		int d_id = 1;
 
 		Tabu routing = new Tabu(t, s_id, d_id, FAILHOPS, 3);
-		//GCR routing = new GCR(t, s_id, d_id, FAILHOPS, ttl);
+		//GCR routing = new GCR(t, s_id, d_id, FAILHOPS, 10);
 		//AODV routing = new AODV(t, s_id, d_id, 100, 10);
-		//GreedyRouting routing = new GreedyRouting(t, s_id, d_id, 100, 10);
+		//Greedy routing = new Greedy(t, s_id, d_id, 100, 10);
 		routing.run();
 		
-		System.out.println(routing.getSumPacketSizes());
-		System.out.println(routing.getPacketSizesPerHop());
+		//System.out.println(routing.getSumPacketSizes());
+		//System.out.println(routing.getPacketSizesPerHop());
 			
 		// TERMINATO
 		
@@ -103,6 +108,8 @@ class Config //extends JPanel
 			totRouting[run_i] = routing.routingForwards;
 			txInvolved[run_i] = routing.involvedTxNodes;
 			totSucc += routing.getSuccess();
+			bytesOverhead[run_i] = routing.getSumPacketSizes();
+			bytesOverheadPerDataHop[run_i] = routing.getPacketSizesPerHop();
 			//System.out.println("hops\tDataPkt\tRoutingPkt\tNodesInvolved");
 			//System.out.println(totHops[run_i] + "\t" + totData[run_i] + "\t" + totRouting[run_i] + "\t"
 			//	+ txInvolved[run_i]);
@@ -123,38 +130,76 @@ public class Demo
 
 	public static void main(String args[]) throws Exception
 	{
-		BufferedWriter stats = null;
+		//BufferedWriter stats = null;
 		
 		double r = 100; // transmission range
 		double dim = 750;
-		
-		int runs = 100;
-		int []nodes = {50, 100, 150, 200};
-		
-		boolean one_run = true;
-		int run = 46;
 		int t = 30;
-		int n = 100;
+		int runs = 500;
+				
+		boolean one_run = false;
+		boolean full = true;
 		
-		//String topodir = "../topologies";
-		String topodir = "./topologies";
-			
+		String topodir = "../topologies"; // linux
+		//String topodir = "./topologies";  // eclipse
+		
+if(!full) {	
 
+		int n = 50;
 		Config conf = new Config(n, dim, dim, 0, r, t, true, runs, topodir);
 		conf.ttl = 10;
-		
-		if(one_run)
+		if(one_run) {
+			int run = 8;
 			conf.run(run);
-		else {
+			runs = 1; // just for statistic adjustment
+		}
+		else 
+		{
 			for(int i = 1; i <= runs; i++)
 			{
 				conf.run(i);
 			}
 		}
-		System.out.println("Delivery\tHops\tDataPkt\tRoutingPkt\tNodesTx");
-		System.out.println(conf.totSucc + "\t"+ Stat.mean(conf.totHops, conf.succ)+"\t"+Stat.mean(conf.totData, conf.succ)+"\t"+
-		Stat.mean(conf.totRouting, conf.succ)+"\t"+Stat.mean(conf.txInvolved, conf.succ));
+		System.out.println("Delivery\tHops\tDataPktSent\tRoutingPktSent\tNodesInvolved\tBytesOverhead\tBytesOverheadPerDataHop");
+		System.out.println((double)conf.totSucc/runs + "\t"+ 
+			Stat.mean(conf.totHops, conf.succ)+"\t"+
+			Stat.mean(conf.totData, conf.succ)+"\t"+
+			Stat.mean(conf.totRouting, conf.succ)+"\t"+
+			Stat.mean(conf.txInvolved, conf.succ)+"\t"+
+			Stat.mean(conf.bytesOverhead, conf.succ)+"\t"+
+			Stat.mean(conf.bytesOverheadPerDataHop, conf.succ));
 		System.exit(0);
+}
+
+else
+		{
+			BufferedWriter stats = null;
+			stats = new BufferedWriter(new FileWriter("stats.txt"));
+			stats.write("Nodes\tDelivery\tHops\tDataPktSent\tRoutingPktSent\tNodesInvolved\tBytesOverhead\tBytesOverheadPerDataHop");
+			stats.newLine();
+			int []nodes = {50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300};
+			for(int nit = 0; nit < nodes.length; nit++)
+			{
+				int n = nodes[nit];
+				stats.write(n+"\t");
+				Config conf = new Config(n, dim, dim, 0, r, t, true, runs, topodir);
+				for(int i = 1; i <= runs; i++)
+				{
+					conf.run(i);
+				}
+				stats.write(
+					String.format("%.2f", (double)conf.totSucc/runs) + "\t"+ 
+					String.format("%.2f", Stat.mean(conf.totHops, conf.succ))+"\t"+
+					String.format("%.2f", Stat.mean(conf.totData, conf.succ))+"\t"+
+					String.format("%.2f", Stat.mean(conf.totRouting, conf.succ))+"\t"+
+					String.format("%.2f", Stat.mean(conf.txInvolved, conf.succ))+"\t"+
+					String.format("%.2f", Stat.mean(conf.bytesOverhead, conf.succ))+"\t"+
+					String.format("%.2f", Stat.mean(conf.bytesOverheadPerDataHop, conf.succ)));
+				stats.newLine();
+			}
+			stats.close();
+		}
+
 	}
 }
 
