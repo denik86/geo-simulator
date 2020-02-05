@@ -16,7 +16,7 @@ public class Routing {
 	}
 	static final int NOTFOUND = -1; 
 	static final int ROUTINGERROR = -2;
-	static final int MAX_EVENT_SIZE = 5000;
+	static final int MAX_EVENT_SIZE = 10000;
 	//static final int BROADCAST = -3;
 	static String errormessage = "";
 	Topology topo; // topology
@@ -39,6 +39,7 @@ public class Routing {
 	public static int routingForwards; // number of routing packet forwards
 	public static int involvedTxNodes;
 	public static int involvedRxNodes;
+	public static int dataMemory;
 	
 	public Routing(Topology t, int s, int d, int maxH)
 	{
@@ -55,11 +56,13 @@ public class Routing {
 		packetSizes = new ArrayList<Integer>();
 		currentTime = 0;
 		
+		//init values
 		hops = 0;
 		dataForwards = 0;
 		routingForwards = 0;
 		involvedRxNodes = 0;
 		involvedTxNodes = 0;
+		dataMemory = 0;
 	}
 	
 	// metho executed at first step (source node)
@@ -278,6 +281,11 @@ public class Routing {
 	public double getPacketSizesPerHop()
 	{
 		return getSumPacketSizes() / dataForwards;
+	}
+
+	public double getDataMemoryPerHops()
+	{
+		return dataMemory / dataForwards;
 	}
 	
 	public int getHopPacketSize(int i) {

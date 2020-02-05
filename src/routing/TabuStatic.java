@@ -6,22 +6,18 @@ import network.Node;
 import network.Topology;
 import routing.Packet.PacketType;
 
-public class Tabu extends Routing{
+public class TabuStatic extends Routing{
 	
-	int startTabuSize;
+	int tabuSize;
 
-	public boolean linear = true; // tabu list increase linear
-	public int factor = 2; // tabu list size multiplier
+	public boolean greedyEmpty = false;
 
 	double infinite = 99999.0;
-	int whenRandom;
 
 
-	
-	public Tabu(Topology t, int s, int d, int maxH, int startTabuSize) {
+	public TabuStatic(Topology t, int s, int d, int maxH, int tabuSize) {
 		super(t, s, d, maxH);
-		this.startTabuSize = startTabuSize;
-		whenRandom = 2 * startTabuSize;
+		this.tabuSize = tabuSize;
 	}
 	
 	public void receive(Packet p, Node c)
@@ -40,17 +36,15 @@ public class Tabu extends Routing{
 				p.addField("dstX", topo.get(DESTINATION_ID).x);
 				p.addField("dstY", topo.get(DESTINATION_ID).y);
 				p.addField("dstZ", topo.get(DESTINATION_ID).z);
-				p.addField("countWorse", 0);
 				p.addField("minReachedDist", 99999.0);
-				p.addField("randomMode", false);
-				p.addField("tabu", new TabuList(startTabuSize));
+				p.addField("tabu", new TabuList(tabuSize));
 			}
 			
 			// add this node to tabulist
 			TabuList tl = (TabuList) p.getField("tabu");
 			tl.add(c.id);
 			p.updateField("tabu", tl);
-					
+				
 			double minDist = 999999;
 			int nextNodeId = c.id;
 			
@@ -65,9 +59,8 @@ public class Tabu extends Routing{
 				if(tl.check(c.getNeighborId(i)))
 					freeNodes--;
 			}
-			
-			boolean randomMode = (boolean) p.getField("randomMode");
-			
+
+					
 			// vicinato vuoto (nessun nodo disponibile) resetto tutto
 			if(freeNodes == 0)
 			{
@@ -77,32 +70,16 @@ public class Tabu extends Routing{
 				freeNodes = c.n;
 			}
 			
-			// se siamo in random e i nodi liberi sono piu di 1
-			if(randomMode && freeNodes > 1)
+			// cerco il migliore
+			for(int i = 0; i < c.n; i++)
 			{
-				Random random = new Random();
-				int rand_i = random.nextInt(c.n-1);
-				while(tl.check(c.getNeighborId(rand_i)))
-					rand_i = random.nextInt(c.n-1);
-				
-				minDist = c.distanceNeighbor(rand_i, dstX, dstY, dstZ);
-				nextNodeId = c.getNeighborId(rand_i);
-			}
-			
-			// invece se siamo in greedy oppure abbiamo solo un nodo libero
-			else
-			{
-				// cerco il migliore
-				for(int i = 0; i < c.n; i++)
+				if(tl.check(c.getNeighborId(i)))
+					continue;
+				double currDist = c.distanceNeighbor(i, dstX, dstY, dstZ);
+				if(currDist < minDist)
 				{
-					if(tl.check(c.getNeighborId(i)))
-						continue;
-					double currDist = c.distanceNeighbor(i, dstX, dstY, dstZ);
-					if(currDist < minDist)
-					{
-						minDist = currDist;
-						nextNodeId = c.getNeighborId(i);
-					}
+					minDist = currDist;
+					nextNodeId = c.getNeighborId(i);
 				}
 			}
 			
@@ -110,33 +87,13 @@ public class Tabu extends Routing{
 			if(nextNodeId != c.id)
 			{
 				double minReachedDist = (double) p.getField("minReachedDist");
-				int countWorse = (int) p.getField("countWorse");
 				if(minDist < minReachedDist) {
 					minReachedDist = minDist;
-					countWorse = 0;
-					tl.resize(startTabuSize);
-					randomMode = false;
 				}
-				else
-				{
-					countWorse++;
-					if(countWorse > tl.size)
-					{
-						if(linear)
-							tl = tl.resize(tl.size + this.startTabuSize);
-						else
-							tl = tl.resize(tl.size*factor);
-					}
-				}
-				
-				if(countWorse > whenRandom)
-					randomMode = true;
-				
+
 				// aggiorno i campi
-				p.updateField("countWorse", countWorse);
-				p.updateField("tabu", tl);
-				p.updateField("randomMode", randomMode);
 				p.updateField("minReachedDist", minReachedDist);
+				p.updateField("tabu", tl);
 			}
 			
 			//  vicinato vuoto (nessun nodo valido)
@@ -147,8 +104,8 @@ public class Tabu extends Routing{
 			//System.out.println("["+c.id+"], invio a " +nextNodeId);
 			p.nextId = nextNodeId;
 			//p.BROADCAST = true;
+			dataMemory += tabuSize*4;
 			send(p);
-			dataMemory += tl.size*4;
 		}
 	}
 
