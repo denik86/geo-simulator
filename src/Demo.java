@@ -92,7 +92,7 @@ class Config //extends JPanel
 		int s_id = 0;
 		int d_id = 1;
 
-		Tabu routing = new Tabu(t, s_id, d_id, FAILHOPS, tabuSize);
+		Tabuv2 routing = new Tabuv2(t, s_id, d_id, FAILHOPS, tabuSize);
 		//Tabu routing = new Tabu(t, s_id, d_id, FAILHOPS, 5);
 		//GCR routing = new GCR(t, s_id, d_id, FAILHOPS, 10);
 		//AODV routing = new AODV(t, s_id, d_id, 100, 10);
@@ -138,7 +138,7 @@ public class Demo
 		
 		double r = 100; // transmission range
 		double dim = 750;
-		int t = 3;
+		int t = 5;
 		int runs = 500;
 				
 		boolean one_run = false;

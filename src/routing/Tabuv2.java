@@ -6,19 +6,20 @@ import network.Node;
 import network.Topology;
 import routing.Packet.PacketType;
 
-public class Tabu extends Routing{
+public class Tabuv2 extends Routing{
 	
 	int startTabuSize;
 
 	public boolean linear = true; // tabu list increase linear
 	public int factor = 2; // tabu list size multiplier
-	
+
 	double infinite = 99999.0;
 	int whenRandom;
 
-
+// version of tabu where tabu list is used only when we are sure that 
+//a node is certainly not useful
 	
-	public Tabu(Topology t, int s, int d, int maxH, int startTabuSize) {
+	public Tabuv2(Topology t, int s, int d, int maxH, int startTabuSize) {
 		super(t, s, d, maxH);
 		this.startTabuSize = startTabuSize;
 		whenRandom = 2 * startTabuSize;
@@ -44,12 +45,15 @@ public class Tabu extends Routing{
 				p.addField("minReachedDist", 99999.0);
 				p.addField("randomMode", false);
 				p.addField("tabu", new TabuList(startTabuSize));
+				p.addField("ptabu", new TabuList(3));
 			}
 			
 			// add this node to tabulist
 			TabuList tl = (TabuList) p.getField("tabu");
 			tl.add(c.id);
 			p.updateField("tabu", tl);
+
+			TabuList ptl = (TabuList) p.getField("ptabu");
 					
 			double minDist = 999999;
 			int nextNodeId = c.id;
@@ -57,12 +61,26 @@ public class Tabu extends Routing{
 			double dstX = (double) p.getField("dstX");
 			double dstY = (double) p.getField("dstY");
 			double dstZ = (double) p.getField("dstZ");
-			
+
+/*
+			// verify if im in a dead end, if yes i add my id in the permanent tabu list
+			int freeNodes = c.n;
+			for(int i = 0; i < c.n; i++)
+			{
+				if(ptl.check(c.getNeighborId(i)))
+					freeNodes--;
+			}
+			if(freeNodes == 1)
+			{
+				ptl.add(c.id);
+				p.updateField("ptabu", ptl);
+			}
+			*/
 			// count how many free neighbors I have (not in tabu)
 			int freeNodes = c.n;
 			for(int i = 0; i < c.n; i++)
 			{
-				if(tl.check(c.getNeighborId(i)))
+				if(tl.check(c.getNeighborId(i)) || ptl.check(c.getNeighborId(i)))
 					freeNodes--;
 			}
 			
@@ -74,7 +92,14 @@ public class Tabu extends Routing{
 				tl.clear();
 				tl.add(c.id);
 				p.updateField("tabu", tl);
+				ptl.add(c.id);
+				p.updateField("ptabu", ptl);
 				freeNodes = c.n;
+				for(int i = 0; i < c.n; i++) // remove those in permanent list
+				{
+					if(ptl.check(c.getNeighborId(i)))
+						freeNodes--;
+				}
 			}
 			
 			// se siamo in random e i nodi liberi sono piu di 1
@@ -95,7 +120,7 @@ public class Tabu extends Routing{
 				// cerco il migliore
 				for(int i = 0; i < c.n; i++)
 				{
-					if(tl.check(c.getNeighborId(i)))
+					if(tl.check(c.getNeighborId(i)) || ptl.check(c.getNeighborId(i)) )
 						continue;
 					double currDist = c.distanceNeighbor(i, dstX, dstY, dstZ);
 					if(currDist < minDist)
@@ -106,7 +131,7 @@ public class Tabu extends Routing{
 				}
 			}
 			
-			// se vicinato non vuoto (ho trovato un next node valido)
+			// se ho trovato un next node valido
 			if(nextNodeId != c.id)
 			{
 				double minReachedDist = (double) p.getField("minReachedDist");
